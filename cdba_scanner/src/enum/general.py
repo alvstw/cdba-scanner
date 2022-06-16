@@ -10,7 +10,7 @@ class OperationModeInput(str, Enum):
 
 
 class SearchResultColumns(str, Enum):
-    matchedFile = 'Matched File'
+    fullPath = 'FullPath'
     extractedTaskName = 'Extracted Task Name'
 
 
@@ -28,5 +28,5 @@ class MappedTaskFolderColumns(str, Enum):
     developer = 'Developers'
     inactive = 'Inactive'
     mappedBy = 'MappedBy'
-    confident = 'Confident'
+    confidence = 'Confidence'
     fullPath = 'FullPath'

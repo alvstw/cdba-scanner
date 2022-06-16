@@ -32,7 +32,7 @@ class TaskMappingService:
             df[SearchResultColumns.extractedTaskName.value] = pd.NaT
             pattern = r'^\\\\.*?\\RPA\\(.*?)\\.*$'
             for i, row in df.iterrows():
-                rs = re.search(pattern, row[SearchResultColumns.matchedFile.value])
+                rs = re.search(pattern, row[SearchResultColumns.fullPath.value])
                 if rs:
                     matchedTask = rs.group(1)
                     df.iat[i, df.columns.get_loc(SearchResultColumns.extractedTaskName.value)] = matchedTask
@@ -100,7 +100,7 @@ class TaskMappingService:
         colDeveloper = MappedTaskFolderColumns.developer.value
         colInactive = MappedTaskFolderColumns.inactive.value
         colMappedBy = MappedTaskFolderColumns.mappedBy.value
-        colConfident = MappedTaskFolderColumns.confident.value
+        colConfident = MappedTaskFolderColumns.confidence.value
         colFullPath = MappedTaskFolderColumns.fullPath.value
 
         rowList = []
@@ -120,7 +120,7 @@ class TaskMappingService:
                 rowData[colInactive] = taskTableDf[TaskTableColumns.inactive.value].values[index]
                 rowData[colMappedBy] = 'taskName'
                 rowData[colConfident] = 100.0
-                rowData[colFullPath] = searchResultDf[SearchResultColumns.matchedFile.value].values[n]
+                rowData[colFullPath] = searchResultDf[SearchResultColumns.fullPath.value].values[n]
                 rowList.append(rowData)
                 continue
 
@@ -135,7 +135,7 @@ class TaskMappingService:
                 rowData[colInactive] = taskTableDf[TaskTableColumns.inactive.value].values[index]
                 rowData[colMappedBy] = 'processName'
                 rowData[colConfident] = 100.0
-                rowData[colFullPath] = searchResultDf[SearchResultColumns.matchedFile.value].values[n]
+                rowData[colFullPath] = searchResultDf[SearchResultColumns.fullPath.value].values[n]
                 rowList.append(rowData)
                 continue
 
@@ -143,11 +143,11 @@ class TaskMappingService:
             try:
                 fuzzyTaskName, fuzzyTaskNameScore = process.extractOne(
                     searchResultDf[SearchResultColumns.extractedTaskName.value].values[n], taskNameList,
-                    scorer=fuzz.partial_token_sort_ratio
+                    scorer=fuzz.token_sort_ratio
                 )
                 fuzzyProcessName, fuzzyProcessNameScore = process.extractOne(
                     searchResultDf[SearchResultColumns.extractedTaskName.value].values[n], processNameList,
-                    scorer=fuzz.partial_token_sort_ratio
+                    scorer=fuzz.token_sort_ratio
                 )
 
                 if fuzzyTaskNameScore > FuzzyMatch.threshold and fuzzyTaskNameScore > fuzzyProcessNameScore:
@@ -159,7 +159,7 @@ class TaskMappingService:
                     rowData[colInactive] = taskTableDf[TaskTableColumns.inactive.value].values[index]
                     rowData[colMappedBy] = 'taskName'
                     rowData[colConfident] = fuzzyTaskNameScore
-                    rowData[colFullPath] = searchResultDf[SearchResultColumns.matchedFile.value].values[n]
+                    rowData[colFullPath] = searchResultDf[SearchResultColumns.fullPath.value].values[n]
                     rowList.append(rowData)
                     continue
 
@@ -172,7 +172,7 @@ class TaskMappingService:
                     rowData[colInactive] = taskTableDf[TaskTableColumns.inactive.value].values[index]
                     rowData[colMappedBy] = 'processName'
                     rowData[colConfident] = fuzzyProcessNameScore
-                    rowData[colFullPath] = searchResultDf[SearchResultColumns.matchedFile.value].values[n]
+                    rowData[colFullPath] = searchResultDf[SearchResultColumns.fullPath.value].values[n]
                     rowList.append(rowData)
                     continue
             except Exception as err:
@@ -185,7 +185,7 @@ class TaskMappingService:
             rowData[colDeveloper] = None
             rowData[colInactive] = None
             rowData[colMappedBy] = None
-            rowData[colFullPath] = searchResultDf[SearchResultColumns.matchedFile.value].values[n]
+            rowData[colFullPath] = searchResultDf[SearchResultColumns.fullPath.value].values[n]
             rowList.append(rowData)
 
         df = DataFrame(rowList)
