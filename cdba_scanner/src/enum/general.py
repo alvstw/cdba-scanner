@@ -7,6 +7,7 @@ class FuzzyMatch:
 
 class OperationModeInput(str, Enum):
     mapResultToTaskName = 'Map Scan Result to Task Name'
+    contentScanning = 'Content Scanning'
 
 
 class SearchResultColumns(str, Enum):
