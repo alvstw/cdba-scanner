@@ -5,23 +5,35 @@ import pandas as pd
 from pandas import DataFrame
 from scanner.src import context
 from scanner.src.constant.general import FilePath
-from scanner.src.exception.file_exception import PathNotFoundException
 from scanner.src.library.helper.file_helper import FileHelper
 from scanner.src.library.helper.time_helper import TimeHelper
 from thefuzz import process, fuzz
 
 from cdba_scanner.src.enum.general import TaskTableColumns, MappedTaskFolderColumns, SearchResultColumns, FuzzyMatch
+from cdba_scanner.src.exception.app_exception import UnexpectedException
+from cdba_scanner.src.exception.file_exception import PathNotFoundException, FileFormatException
 
 
 class TaskMappingService:
     def mapFolderToTask(self, columnMapping: dict, scanResultFilePath: str, taskTableFilePath: str):
-        scanResultDf = TaskMappingService.readSearchResultFile(scanResultFilePath)
-        taskTableDf = TaskMappingService.readTaskTableFile(taskTableFilePath, columnMapping)
-        rs = TaskMappingService.createMappedTaskFolderDf(scanResultDf, taskTableDf)
+        try:
+            scanResultDf = TaskMappingService.readSearchResultFile(scanResultFilePath)
+            taskTableDf = TaskMappingService.readTaskTableFile(taskTableFilePath, columnMapping)
+            rs = TaskMappingService.createMappedTaskFolderDf(scanResultDf, taskTableDf)
+        except PathNotFoundException as err:
+            context.messageHelper.print(f'The file cannot be found: {err}')
+            return
+        except FileFormatException as err:
+            context.messageHelper.print(f'The file is not formatted properly: {err}')
+            return
+        except UnexpectedException as err:
+            context.messageHelper.print(f'Something went wrong while mapping tables: {err}')
+            return
+
         try:
             resultFilePath = TaskMappingService.writeCSV(rs)
             context.messageHelper.print(f'The mapped table is saved: {resultFilePath}')
-        except Exception as err:
+        except UnexpectedException as err:
             context.messageHelper.print(f'Something went wrong while saving the mapped table: {err}')
 
     @staticmethod
@@ -38,12 +50,12 @@ class TaskMappingService:
                     df.iat[i, df.columns.get_loc(SearchResultColumns.extractedTaskName.value)] = matchedTask
             df = df[pd.notnull(df[SearchResultColumns.extractedTaskName.value])]
             return df
-        except FileNotFoundError:
-            raise PathNotFoundException
+        except FileNotFoundError as err:
+            raise PathNotFoundException(err)
         except KeyError as err:
-            context.messageHelper.print(str(err))
+            raise FileFormatException(err)
         except Exception as err:
-            context.messageHelper.print(str(err))
+            raise UnexpectedException(err)
 
     @staticmethod
     def readTaskTableFile(taskTableFilePath: str, columnMapping: dict) -> DataFrame:
@@ -193,8 +205,8 @@ class TaskMappingService:
 
     @staticmethod
     def writeCSV(df: DataFrame) -> str:
-        filePath = FileHelper.joinPath(FilePath.DATA, TimeHelper.formatTime(fmt='%Y-%m-%d %H%M'))
-        filePath = f'{filePath}.csv'
+        dtFormatted = '%Y-%m-%d %H%M'
+        filePath = FileHelper.joinPath(FilePath.DATA, f'{TimeHelper.formatTime(fmt=dtFormatted)} (Mapped).csv')
         df.to_csv(filePath)
 
         return filePath

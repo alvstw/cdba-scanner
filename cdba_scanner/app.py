@@ -26,13 +26,13 @@ def main():
             'type': 'input',
             'name': 'scanResultFilePath',
             'message': 'Scan Result File',
-            'validate': PathValidator,
+            'validate': FileValidator,
         },
         {
             'type': 'input',
             'name': 'taskTableFilePath',
             'message': 'Task List File',
-            'validate': PathValidator,
+            'validate': FileValidator,
         },
         {
             'type': 'input',
