@@ -10,6 +10,7 @@ from scanner.src.library.helper.file_helper import FileHelper
 from scanner.src.library.helper.validate_helper import ValidateHelper
 from scanner.src.report_service import ReportService
 from scanner.src.search_service import SearchService
+from scanner.src.validator.console.path_validator import PathValidator
 from scanner.src.validator.console.positive_number_validator import PositiveNumberValidator
 
 from cdba_scanner.src.enum.general import OperationModeInput, TaskTableColumns
@@ -76,7 +77,7 @@ def main():
             'type': 'input',
             'name': 'scanDirectory',
             'message': 'Scan Directory',
-            'validate': FileValidator
+            'validate': PathValidator
         },
         {
             'type': 'checkbox',
