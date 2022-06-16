@@ -149,8 +149,8 @@ typer = "^0.4.1"
 [package.source]
 type = "git"
 url = "https://github.com/alvstw/content-scanner.git"
-reference = "master"
-resolved_reference = "ae7629597cec074d3516d56134f868cc5b5e027a"
+reference = "v0.1.1"
+resolved_reference = "4bd5a539e0334e042ddc6bf5f907558538d46ec2"
 
 [[package]]
 name = "six"
@@ -235,7 +235,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "b31c4645cd0ad7610f8f44ee6d4fda1659f30a7340711729ceaeb6e5554fb725"
+content-hash = "357613452c74a9c936d4c2082e6888b0fdcae507934397698b2301888b234c23"
 
 [metadata.files]
 click = [
